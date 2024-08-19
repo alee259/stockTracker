@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Tracker</title>
+</head>
+<body>
+    <h1>Stock Tracker</h1>
+    <form method="POST" action="/">
+        <label for="tickers">Enter stock ticker symbols (comma-separated):</label>
+        <input type="text" name="tickers" id="tickers" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if existing_data %}
+        <h2>Existing Ticker Data and Graphs</h2>
+        {% for ticker, records in existing_data.items() %}
+            <h3>{{ ticker }}</h3>
+            <ul>
+                {% for record in records %}
+                    <li>
+                        <strong>Date:</strong> {{ record.date }}<br>
+                        <strong>Open:</strong> ${{ "{:,.2f}".format(record.open) }}<br>
+                        <strong>High:</strong> ${{ "{:,.2f}".format(record.high) }}<br>
+                        <strong>Low:</strong> ${{ "{:,.2f}".format(record.low) }}<br>
+                        <strong>Close:</strong> ${{ "{:,.2f}".format(record.close) }}<br>
+                        <strong>Volume:</strong> {{ "{:,}".format(record.volume) }}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% if ticker in existing_data %}
+                <img src="{{ url_for('static', filename='Graphs/' + ticker + '_last_month.png') }}" alt="{{ ticker }} graph">
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if all_data %}
+        <h2>Stock Data and Graphs for Submitted Tickers</h2>
+        {% for data in all_data %}
+            <h3>{{ data.ticker }}</h3>
+            <p><strong>EOD Data for {{ data.eod_data.date }}:</strong></p>
+            <ul>
+                <li>Open: ${{ "{:,.2f}".format(data.eod_data.open) }}</li>
+                <li>High: ${{ "{:,.2f}".format(data.eod_data.high) }}</li>
+                <li>Low: ${{ "{:,.2f}".format(data.eod_data.low) }}</li>
+                <li>Close: ${{ "{:,.2f}".format(data.eod_data.close) }}</li>
+                <li>Volume: {{ "{:,}".format(data.eod_data.volume) }}</li>
+            </ul>
+            <img src="{{ url_for('static', filename='Graphs/' + data.graph_path.split('/')[-1]) }}" alt="{{ data.ticker }} graph">
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
